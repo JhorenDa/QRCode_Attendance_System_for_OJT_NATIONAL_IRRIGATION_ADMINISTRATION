@@ -1,7 +1,9 @@
 from flask import Flask, redirect, url_for, request, render_template, session,jsonify
 import pymysql
 import qrcode
+import os
 from datetime import datetime
+import base64
 app = Flask(__name__)
 
 
@@ -83,53 +85,67 @@ def reg_ojt_commit():
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------
 
+UPLOAD_FOLDER = 'static/attendance_photos'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 @app.route('/receive_qr', methods=['POST'])
 def receive_qr():
     data = request.form.get('data')
+    photo_data = request.form.get('photo')  # Base64 encoded image
     
     # Ensure data is passed as a tuple
     cursor.execute("SELECT * FROM ojt WHERE id = %s", (data,))
     result = cursor.fetchone()
-    if result:
-        full_name = result[1]
-        
-    else:
+    if not result:
         return jsonify({"message": "Invalid QR data"}), 400
     
+    full_name = result[1]
     
     cursor.execute("SELECT * FROM attendance WHERE fullName = %s AND date = %s", (full_name, current_date))
     attendance = cursor.fetchone()
-    print(attendance)
-    print(current_time)
-    print(current_date)
-    print(full_name)
-    if not attendance :
+    
+    # Save photo if provided
+    photo_path = None
+    if photo_data:
+        try:
+            # Convert base64 to image file
+            photo_data = photo_data.split(',')[1]  # Remove data URL prefix if present
+            image_data = base64.b64decode(photo_data)
+            filename = f"{full_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+            photo_path = os.path.join(UPLOAD_FOLDER, filename)
+            with open(photo_path, 'wb') as f:
+                f.write(image_data)
+            photo_path = filename  # Store relative path
+        except Exception as e:
+            print(f"Error saving photo: {e}")
+    
+    if not attendance:
         if datetime.strptime('06:00:00', '%H:%M:%S').time() <= current_time <= datetime.strptime('12:59:00', '%H:%M:%S').time():
             cursor.execute(
-                "INSERT INTO attendance (fullName, morning_time_in, date) VALUES (%s, %s, %s)",
-                (full_name, current_time, current_date)
+                "INSERT INTO attendance (fullName, morning_time_in, date, photo) VALUES (%s, %s, %s, %s)",
+                (full_name, current_time, current_date, photo_path)
             )
             db.commit()
             return jsonify({"message": f"Morning time in: {current_time}"})
         else:
             cursor.execute(
-                "INSERT INTO attendance (fullName, afternoon_time_in, date) VALUES (%s, %s, %s)",
-                (full_name, current_time, current_date)
+                "INSERT INTO attendance (fullName, afternoon_time_in, date, photo) VALUES (%s, %s, %s, %s)",
+                (full_name, current_time, current_date, photo_path)
             )
             db.commit()
             return jsonify({"message": f"Afternoon time in: {current_time}"})
     else:
         if datetime.strptime('13:00:00', '%H:%M:%S').time() <= current_time <= datetime.strptime('17:59:00', '%H:%M:%S').time():
             cursor.execute(
-                "UPDATE attendance SET afternoon_time_out = %s WHERE fullName = %s AND date = %s",
-                (current_time, full_name, current_date)
+                "UPDATE attendance SET afternoon_time_out = %s, photo = %s WHERE fullName = %s AND date = %s",
+                (current_time, photo_path, full_name, current_date)
             )
             db.commit()
             return jsonify({"message": f"Afternoon time out: {current_time}"})
         else:
             cursor.execute(
-                "UPDATE attendance SET morning_time_out = %s WHERE fullName = %s AND date = %s",
-                (current_time, full_name, current_date)
+                "UPDATE attendance SET morning_time_out = %s, photo = %s WHERE fullName = %s AND date = %s",
+                (current_time, photo_path, full_name, current_date)
             )
             db.commit()
             return jsonify({"message": f"Morning time out: {current_time}"})
