@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Camera - QR Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #0077b6, #00cc66);
+            color: #fff;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .camera-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            width: 90%;
+            max-width: 650px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        video {
+            width: 100%;
+            border: 5px solid #fff;
+            border-radius: 10px;
+        }
+
+        #qr-result {
+            margin-top: 15px;
+            font-size: 18px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 5px;
+            width: 90%;
+            word-wrap: break-word;
+        }
+
+        input[type="text"] {
+            margin-top: 15px;
+            padding: 10px;
+            width: 80%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>QR Code Scanner</h1>
+    
+    <div class="camera-container">
+        <div id="my-qr-reader"></div>
+        <p id="qr-result">QR Code Data: <span id="qr-data">Waiting for scan...</span></p>
+
+        <!-- Form to send data to Flask -->
+        <form id="qr-form">
+            <input type="text" id="qr-input" name="data" readonly />
+        </form>
+    </div>
+
+    <script>
+        function onScanSuccess(decodedText, decodedResult) {
+            document.getElementById("qr-data").textContent = decodedText;
+            document.getElementById("qr-input").value = decodedText;
+    
+            // Automatically submit data to Flask server
+            sendDataToServer(decodedText);
+        }
+    
+        function sendDataToServer(data) {
+            const formData = new URLSearchParams();
+            formData.append('data', data);
+    
+            fetch('/receive_qr', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData.toString()  // Ensure proper encoding
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('Server response:', result);
+                if (result.message) {
+                    alert(`Data submitted: ${result.message}`);
+                } else if (result.error) {
+                    alert(`Error: ${result.error}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error sending data:', error);
+                alert('Failed to send data to the server.');
+            });
+        }
+    
+        let htmlscanner = new Html5QrcodeScanner(
+            "my-qr-reader",
+            { fps: 10, qrbox: 250 }
+        );
+        htmlscanner.render(onScanSuccess);
+    </script>
+    
+
+</body>
+</html>

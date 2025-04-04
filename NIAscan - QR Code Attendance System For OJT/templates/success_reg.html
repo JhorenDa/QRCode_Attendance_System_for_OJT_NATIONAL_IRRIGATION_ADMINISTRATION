@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OJT Details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #f1f1f1, #d6d6d6);
+        }
+
+        .ojt-box {
+            background: white;
+            padding: 20px;
+            width: 350px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .ojt-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .ojt-box img {
+            width: 120px;
+            height: 120px;
+            border-radius: 10px;
+            border: 2px solid #ccc;
+            margin-bottom: 15px;
+        }
+
+        .ojt-box p {
+            font-size: 16px;
+            margin: 8px 0;
+            color: #333;
+        }
+
+        .ojt-box p strong {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="ojt-box">
+        <img src="{{ url_for('static', filename='qrcodes/'+ path) }}" alt="QR Code">
+        <p><strong>Full Name:</strong> {{ fname }}</p>
+        <p><strong>School:</strong> {{ school }}</p>
+        <p><strong>Grade Level:</strong> {{ grade_lvl }}</p>
+        <p><strong>Course:</strong> {{ course }}</p>
+        <p><strong>OJT Hours:</strong> {{ ojt_hours }}</p>
+    </div>
+</body>
+</html>
