@@ -70,6 +70,31 @@
             border: 1px solid #ccc;
             font-size: 16px;
             text-align: center;
+            display: none;
+        }
+
+        #photo-preview {
+            margin-top: 15px;
+            max-width: 100%;
+            border: 3px solid #fff;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #005f92;
         }
     </style>
 </head>
@@ -80,38 +105,95 @@
     <div class="camera-container">
         <div id="my-qr-reader"></div>
         <p id="qr-result">QR Code Data: <span id="qr-data">Waiting for scan...</span></p>
-
+        
+        <!-- Photo preview -->
+        <img id="photo-preview" alt="Captured photo will appear here">
+        
         <!-- Form to send data to Flask -->
         <form id="qr-form">
             <input type="text" id="qr-input" name="data" readonly />
+            <input type="hidden" id="photo-data" name="photo" />
         </form>
+        
+        <button id="capture-btn" class="btn" style="display: none;">Capture Photo</button>
     </div>
 
     <script>
+        let scanner = null;
+        let videoElement = null;
+        let canvasElement = null;
+        let currentQrData = null;
+        
         function onScanSuccess(decodedText, decodedResult) {
             document.getElementById("qr-data").textContent = decodedText;
             document.getElementById("qr-input").value = decodedText;
-    
-            // Automatically submit data to Flask server
-            sendDataToServer(decodedText);
+            currentQrData = decodedText;
+            
+            // Show capture button
+            document.getElementById("capture-btn").style.display = "block";
+            
+            // Pause the scanner temporarily
+            if (scanner) {
+                scanner.pause();
+            }
         }
-    
-        function sendDataToServer(data) {
+        
+        function capturePhoto() {
+            if (!videoElement) {
+                videoElement = document.querySelector('#my-qr-reader video');
+            }
+            
+            if (!canvasElement) {
+                canvasElement = document.createElement('canvas');
+                document.body.appendChild(canvasElement);
+                canvasElement.style.display = 'none';
+            }
+            
+            // Set canvas dimensions to match video
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
+            
+            // Draw video frame to canvas
+            const context = canvasElement.getContext('2d');
+            context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+            
+            // Get image data and display preview
+            const imageData = canvasElement.toDataURL('image/jpeg');
+            const photoPreview = document.getElementById('photo-preview');
+            photoPreview.src = imageData;
+            photoPreview.style.display = 'block';
+            
+            // Set the photo data in the hidden input
+            document.getElementById('photo-data').value = imageData;
+            
+            // Send data to server
+            sendDataToServer(currentQrData, imageData);
+        }
+        
+        function sendDataToServer(qrData, photoData) {
             const formData = new URLSearchParams();
-            formData.append('data', data);
-    
+            formData.append('data', qrData);
+            formData.append('photo', photoData);
+            
             fetch('/receive_qr', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: formData.toString()  // Ensure proper encoding
+                body: formData.toString()
             })
             .then(response => response.json())
             .then(result => {
                 console.log('Server response:', result);
                 if (result.message) {
-                    alert(`Data submitted: ${result.message}`);
+                    alert(`Attendance recorded: ${result.message}`);
+                    
+                    // Reset the scanner after successful submission
+                    if (scanner) {
+                        scanner.resume();
+                        document.getElementById("photo-preview").style.display = "none";
+                        document.getElementById("capture-btn").style.display = "none";
+                    }
                 } else if (result.error) {
                     alert(`Error: ${result.error}`);
                 }
@@ -121,14 +203,18 @@
                 alert('Failed to send data to the server.');
             });
         }
-    
-        let htmlscanner = new Html5QrcodeScanner(
-            "my-qr-reader",
-            { fps: 10, qrbox: 250 }
-        );
-        htmlscanner.render(onScanSuccess);
+        
+        // Initialize scanner
+        document.addEventListener('DOMContentLoaded', function() {
+            scanner = new Html5QrcodeScanner(
+                "my-qr-reader",
+                { fps: 10, qrbox: 250 }
+            );
+            scanner.render(onScanSuccess);
+            
+            // Add event listener for capture button
+            document.getElementById('capture-btn').addEventListener('click', capturePhoto);
+        });
     </script>
-    
-
 </body>
 </html>

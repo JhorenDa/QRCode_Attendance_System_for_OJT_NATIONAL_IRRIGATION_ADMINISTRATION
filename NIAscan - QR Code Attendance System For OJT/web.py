@@ -1,7 +1,9 @@
 from flask import Flask, redirect, url_for, request, render_template, session,jsonify
 import pymysql
 import qrcode
+import os
 from datetime import datetime
+import base64
 app = Flask(__name__)
 
 
@@ -16,6 +18,20 @@ current_time = datetime.now().time()
 @app.route('/')
 def home():
     return render_template('loginForm.html')
+
+
+@app.route('/info', methods=['POST', 'GET'])
+def info():
+    if request.method == 'POST':
+        ojt_id = request.form['ojt_id']
+    else:
+        ojt_id = request.args.get('ojt_id')
+
+    cursor.execute("SELECT * FROM ojt WHERE id = %s", (ojt_id,))
+    ojt_data = cursor.fetchone()
+    path = ojt_data[11]
+    return render_template('ojt_info.html', ojt=ojt_data, path = path)
+
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     uname = request.form['username']
@@ -26,10 +42,55 @@ def login():
         return redirect(url_for('admin'))
     else:
         return redirect(url_for('home'))
-@app.route('/admin')
+@app.route('/admin',methods=['POST', 'GET'])
 def admin():
-    return render_template('admin.html')
+    # Reconnect if connection is lost
+    if not db.open:
+        db.ping(reconnect=True)
+    
+    try:
+        # Fetch all OJT records as dictionary
+        
 
+        cursor = db.cursor()
+        cursor.execute("SELECT COUNT(*) FROM school")
+        school = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM ojt")
+        total_ojts = cursor.fetchone()[0]
+        cursor.execute("SELECT name FROM ojt ORDER BY id DESC LIMIT 1")
+        new = cursor.fetchone()
+        cursor.execute("SELECT * FROM ojt")
+        ojts = cursor.fetchall()
+        cursor.execute("SELECT barangay_name FROM barangays")
+        brgy = cursor.fetchall()
+        cursor.execute("SELECT city_name FROM city")
+        city = cursor.fetchall()
+        cursor.execute("SELECT region_name FROM region")
+        region = cursor.fetchall()
+        
+        # Convert to list of dictionaries if needed (depends on your DB driver)
+        ojts_list = []
+        for ojt in ojts:
+            ojts_list.append({
+                'id': ojt[0],
+                'name': ojt[1],
+                'contact': ojt[2],
+                'school': ojt[3],
+                'grade_lvl': ojt[4],
+                'course': ojt[5],
+                'region': ojt[6],
+                'city': ojt[7],
+                'brgy': ojt[8],
+                'street': ojt[9],
+                'ojt_hours': ojt[10],
+                'path': ojt[11]
+            })
+        return render_template('admin.html', ojts=ojts_list, brgy=brgy, city=city, region=region, new = new, total = total_ojts,school = school)
+    except Exception as e:
+        print(f"Database error: {e}")
+        return "Error loading admin page", 500
+    finally:
+        cursor.close()
 @app.route('/logout')
 def logout():
     return redirect(url_for('home'))
@@ -38,6 +99,7 @@ def logout():
 @app.route('/register')
 def register():
     return render_template('registerForm.html')
+
 @app.route('/registercommit', methods=['POST', 'GET'])
 def register_commit():
     name = request.form['fullname']
@@ -81,29 +143,56 @@ def reg_ojt_commit():
     
     return render_template('success_reg.html',path=path, fname = fname,  school = school, grade_lvl = grade_lvl, course = course, ojt_hours = ojt_hours)
 
+@app.route('/add_school', methods=['POST', 'GET'])
+def add_school():
+    name = request.form['name']
+    shorten = request.form['shorten']
+    
+    cursor.execute("INSERT INTO school (name, shorten) VALUES (%s, %s)", (name, shorten))
+    db.commit()
+    cursor.close()
+    db.close()
+    return redirect(url_for('admin'))
+@app.route('/school', methods=['POST', 'GET'])
+def school():
+    return render_template("school_reg.html")
 #-------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPLOAD_FOLDER = 'static/attendance_photos'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route('/receive_qr', methods=['POST'])
 def receive_qr():
     data = request.form.get('data')
+    photo_data = request.form.get('photo')  # Base64 encoded image
     
     # Ensure data is passed as a tuple
     cursor.execute("SELECT * FROM ojt WHERE id = %s", (data,))
     result = cursor.fetchone()
-    if result:
-        full_name = result[1]
-        
-    else:
+    if not result:
         return jsonify({"message": "Invalid QR data"}), 400
     
+    full_name = result[1]
     
     cursor.execute("SELECT * FROM attendance WHERE fullName = %s AND date = %s", (full_name, current_date))
     attendance = cursor.fetchone()
-    print(attendance)
-    print(current_time)
-    print(current_date)
-    print(full_name)
-    if not attendance :
+    
+    # Save photo if provided
+    photo_path = None
+    if photo_data:
+        try:
+            # Convert base64 to image file
+            photo_data = photo_data.split(',')[1]  # Remove data URL prefix if present
+            image_data = base64.b64decode(photo_data)
+            filename = f"{full_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+            photo_path = os.path.join(UPLOAD_FOLDER, filename)
+            with open(photo_path, 'wb') as f:
+                f.write(image_data)
+            photo_path = filename  # Store relative path
+        except Exception as e:
+            print(f"Error saving photo: {e}")
+    
+    if not attendance:
         if datetime.strptime('06:00:00', '%H:%M:%S').time() <= current_time <= datetime.strptime('12:59:00', '%H:%M:%S').time():
             cursor.execute(
                 "INSERT INTO attendance (fullName, morning_time_in, date) VALUES (%s, %s, %s)",
@@ -120,15 +209,15 @@ def receive_qr():
             return jsonify({"message": f"Afternoon time in: {current_time}"})
     else:
         if datetime.strptime('13:00:00', '%H:%M:%S').time() <= current_time <= datetime.strptime('17:59:00', '%H:%M:%S').time():
-            cursor.execute(
-                "UPDATE attendance SET afternoon_time_out = %s WHERE fullName = %s AND date = %s",
+            cursor.execute( 
+                "UPDATE attendance SET afternoon_time_out = %s = %s WHERE fullName = %s AND date = %s",
                 (current_time, full_name, current_date)
             )
             db.commit()
             return jsonify({"message": f"Afternoon time out: {current_time}"})
         else:
             cursor.execute(
-                "UPDATE attendance SET morning_time_out = %s WHERE fullName = %s AND date = %s",
+                "UPDATE attendance SET morning_time_out = %s = %s WHERE fullName = %s AND date = %s",
                 (current_time, full_name, current_date)
             )
             db.commit()

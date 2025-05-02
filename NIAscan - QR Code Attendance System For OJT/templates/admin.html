@@ -4,143 +4,804 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #468087;
+            --secondary-color: #55d8d4;
+            --accent-color: #00e63d;
+            --dark-color: #2c3e50;
+            --light-color: #f0f8ff;
+            --danger-color: #f44336;
+            --warning-color: #ff9800;
+            --success-color: #4CAF50;
+            --info-color: #2196F3;
+            --sidebar-width: 280px;
+            --header-height: 80px;
+            --transition-speed: 0.3s;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
         body {
             display: flex;
-            height: 100vh;
-            background-color: #f0f8ff;
+            min-height: 100vh;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
         }
+
+        /* Sidebar Styles */
         .sidebar {
-            width: 350px;
-            background: linear-gradient(135deg, #66eae6, #00ff44);
-            color: black;
-            padding: 20px;
+            width: var(--sidebar-width);
+            background: linear-gradient(135deg, var(--primary-color), #3a6d74);
+            color: white;
+            padding: 20px 0;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            transition: all var(--transition-speed);
         }
+
         .admin-profile {
             display: flex;
             align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid white;
+            padding: 0 20px 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
+
         .admin-profile img {
-            width: 70px;
-            height: 70px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid white;
-            margin-right: 10px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            margin-right: 15px;
+            transition: all var(--transition-speed);
         }
+
+        .admin-profile:hover img {
+            border-color: white;
+            transform: scale(1.05);
+        }
+
+        .admin-profile h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .admin-profile p {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
         .nav-links {
-            margin-top: 20px;
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 10px;
         }
+
         .nav-links a {
-            display: block;
-            padding: 10px;
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
             margin: 5px 0;
-            color: white;
+            color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
-            font-size: 16px;
-            border-radius: 5px;
-            transition: 0.3s;
-            cursor: pointer;
+            border-radius: 8px;
+            transition: all var(--transition-speed);
         }
-        .nav-links a:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        .logout {
-            margin-top: auto;
+
+        .nav-links a i {
+            margin-right: 12px;
+            font-size: 18px;
+            width: 24px;
             text-align: center;
         }
-        .logout a {
-            display: block;
-            padding: 10px;
-            color: red;
-            text-decoration: none;
-            font-weight: bold;
-            border-radius: 5px;
-            transition: 0.3s;
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            transform: translateX(5px);
         }
+
+        .nav-links a.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: 500;
+        }
+
+        .logout {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .logout a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all var(--transition-speed);
+        }
+
         .logout a:hover {
             background: rgba(255, 0, 0, 0.2);
+            color: white;
         }
+
+        .logout a i {
+            margin-right: 8px;
+        }
+
+        /* Main Content Styles */
         .content {
             flex: 1;
-            padding: 20px;
-            color: black;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
+
+        .header {
+            height: var(--header-height);
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 5;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-bell {
+            position: relative;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+
+        .notification-bell i {
+            font-size: 20px;
+            color: var(--dark-color);
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .user-menu img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+
+        .user-menu span {
+            font-weight: 500;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background-color: #f5f7fa;
+        }
+
         .section {
             display: none;
+            animation: fadeIn 0.5s ease;
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .active {
             display: block;
         }
-        
-        /* Registration Form Styling */
-        .reg_form {
-            background-color: white;
-            padding: 50px;
-            border-radius: 10px;
-            max-width: 800px;
-            margin: auto;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .form-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        .form-group {
-            flex: 1 1 calc(50% - 10px);
+
+        /* Dashboard Section */
+        #dashboard {
             display: flex;
             flex-direction: column;
+            gap: 30px;
         }
-        .form-group label {
-            font-weight: bold;
+
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-banner h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-banner p {
+            opacity: 0.9;
+            max-width: 600px;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform var(--transition-speed);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-card .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .stat-card .card-icon.students {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+        }
+
+        .stat-card .card-icon.hours {
+            background: linear-gradient(135deg, #2196F3, #03A9F4);
+        }
+
+        .stat-card .card-icon.schools {
+            background: linear-gradient(135deg, #FF9800, #FFC107);
+        }
+
+        .stat-card .card-icon.completed {
+            background: linear-gradient(135deg, #9C27B0, #E91E63);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
             margin-bottom: 5px;
         }
-        .form-group input, .form-group select {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+
+        .stat-card .change {
+            font-size: 12px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .stat-card .change.positive {
+            color: var(--success-color);
+        }
+
+        .stat-card .change.negative {
+            color: var(--danger-color);
+        }
+
+        .recent-activity {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .recent-activity h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .recent-activity h2 i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(70, 128, 135, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--primary-color);
+            font-size: 18px;
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .activity-time {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* OJT Table Section */
+        #ojt {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
             font-size: 14px;
+            transition: all var(--transition-speed);
         }
-        .form-group input::placeholder {
-            color: #aaa;
-            font-style: italic;
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(70, 128, 135, 0.2);
         }
-        .full-width {
-            flex: 1 1 100%;
-            text-align: center;
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
         }
-        .submit-btn {
-            background-color: #00ff44;
+
+        .ojt-table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .ojt-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .ojt-table th {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            padding: 10px 15px;
+            font-weight: 500;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .ojt-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .ojt-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .ojt-table tr:hover {
+            background-color: rgba(70, 128, 135, 0.05);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all var(--transition-speed);
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .action-btn i {
+            margin-right: 5px;
+            font-size: 12px;
+        }
+
+        .edit-btn {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background-color: #3d8b40;
+            transform: translateY(-2px);
+        }
+
+        .delete-btn {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background-color: #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        .qr-btn {
+            background-color: var(--info-color);
+            color: white;
+        }
+
+        .qr-btn:hover {
+            background-color: #0b7dda;
+            transform: translateY(-2px);
+        }
+
+        .attendance-btn {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .attendance-btn:hover {
+            background-color: #e68a00;
+            transform: translateY(-2px);
+        }
+
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 0 10px;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 5px;
+        }
+
+        .pagination-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+
+        .pagination-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Registration Form Section */
+        #register-ojt {
+            max-width: 800px;
+            margin: 0 auto;
             width: 100%;
         }
+
+        .reg-form-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .reg-form-container h1 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 24px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .reg-form-container h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 3px;
+        }
+
+        .form-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all var(--transition-speed);
+            background-color: #f9f9f9;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(70, 128, 135, 0.2);
+            background-color: white;
+        }
+
+        .form-group input::placeholder {
+            color: #aaa;
+        }
+
+        .section-title {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin: 20px 0;
+            color: var(--primary-color);
+            font-size: 18px;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .section-title::before,
+        .section-title::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #ddd);
+        }
+
+        .section-title::before {
+            left: 0;
+        }
+
+        .section-title::after {
+            right: 0;
+            background: linear-gradient(90deg, #ddd, transparent);
+        }
+
+        .submit-btn {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all var(--transition-speed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
         .submit-btn:hover {
-            background-color: #00cc37;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            opacity: 0.9;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+                padding: 20px 10px;
+                overflow: hidden;
+            }
+
+            .admin-profile {
+                flex-direction: column;
+                align-items: center;
+                padding: 10px 0;
+            }
+
+            .admin-profile img {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            .admin-profile h3,
+            .admin-profile p,
+            .nav-links a span {
+                display: none;
+            }
+
+            .nav-links a {
+                justify-content: center;
+                padding: 15px 0;
+            }
+
+            .nav-links a i {
+                margin-right: 0;
+                font-size: 20px;
+            }
+
+            .logout a span {
+                display: none;
+            }
         }
 
         @media (max-width: 768px) {
-            .form-group {
-                flex: 1 1 100%;
+            .stats-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .form-container {
+                grid-template-columns: 1fr;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .ojt-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                padding: 0 15px;
+            }
+
+            .header-title {
+                font-size: 20px;
+            }
+
+            .main-content {
+                padding: 20px 15px;
+            }
+
+            .reg-form-container {
+                padding: 20px;
             }
         }
     </style>
@@ -150,112 +811,415 @@
         <div>
             <div class="admin-profile">
                 <img src="admin.jpg" alt="Admin Picture">
-                <h3>Admin Name</h3>
+                <div>
+                    <h3>Admin Name</h3>
+                    <p>Administrator</p>
+                </div>
             </div>
             <div class="nav-links">
-                <a onclick="showSection('dashboard')">Dashboard</a>
-                <a onclick="showSection('ojt')">OJT</a>
-                <a onclick="showSection('register-ojt')">Register OJT</a>
+                <a class="active" onclick="showSection('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a onclick="showSection('register-ojt')">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Register OJT</span>
+                </a>
             </div>
         </div>
         <div class="logout">
-            <a href="#">Log Out</a>
+            <a href="#">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Log Out</span>
+            </a>
         </div>
     </div>
 
     <div class="content">
-        <div id="dashboard" class="section active">
-            <h1>Welcome, Admin!</h1>
-            <p>This is your dashboard.</p>
+        <div class="header">
+            <div class="header-title" id="currentSectionTitle">Dashboard</div>
+            
         </div>
 
-        <div id="ojt" class="section">
-            <h1>OJT Section</h1>
-            <p>Manage and monitor OJT students here.</p>
-        </div>
+        <div class="main-content">
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="section active">
+                <div class="welcome-banner">
+                    <h1>Welcome back, Admin!</h1>
+                    <p>Here's what's happening with your OJT program today.</p>
+                </div>
 
-        <div id="register-ojt" class="section">
-            <h1>Register OJT</h1>
-            <p>Register new OJT students in this section.</p>
-
-            <div class="reg_form">
-                <form action="{{ url_for('reg_ojt_commit') }}" method="post">
-                    <div class="form-container">
-                        <div class="form-group">
-                            <label for="fname">Full Name:</label>
-                            <input type="text" name="fname" id="fname" placeholder="Enter Full Name">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="contact">Contact:</label>
-                            <input type="number" name="contact" id="contact" placeholder="Enter Contact Number">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="school">School:</label>
-                            <input type="text" name="school" id="school" placeholder="Enter School Name">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="glvl">Grade Level:</label>
-                            <input type="text" name="glvl" id="glvl" placeholder="Enter Grade Level">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="course">Course:</label>
-                            <input type="text" name="course" id="course" placeholder="Enter Course">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="hours">OJT Hours:</label>
-                            <input type="number" name="hours" id="hours" placeholder="Enter Required Hours">
-                        </div>
-
-                        <div class="full-width">
-                            <h3>Address</h3>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="region">Region:</label>
-                            <select name="region" id="region">
-                                <option value="Select Region">Select Region</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="city">City:</label>
-                            <select name="city" id="city">
-                                <option value="Select City">Select City</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="brgy">Barangay:</label>
-                            <select name="brgy" id="brgy">
-                                <option value="Select Barangay">Select Barangay</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="street">Street:</label>
-                            <input type="text" name="street" id="street" placeholder="Enter Street Name"><br><br>
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <div class="card-header">
+                            <div>
+                                <h3>Total OJT Students</h3>
+                                <div class="value">{{total}}</div>
+                            </div>
+                            <div class="card-icon students">
+                                <i class="fas fa-users"></i>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="full-width">
-                        <button type="submit" class="submit-btn">Register</button>
+                    <div class="stat-card">
+                        <div class="card-header">
+                            <div>
+                                <h3>Partner Schools</h3>
+                                <div class="value">{{school}}</div>
+                                <div class="change positive">
+                                    <a href="{{ url_for('school') }}">
+                                        <button class="action-btn qr-btn">Add School</button>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="card-icon schools">
+                                <i class="fas fa-school"></i>
+                            </div>
+                        </div>
                     </div>
-                </form>
+                </div>
+
+                <div class="recent-activity">
+                    <h2><i class="fas fa-history"></i> Recent Activity</h2>
+                    <ul class="activity-list">
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-title">New OJT student registered - {{new[0]}}</div>
+                                <div class="activity-time">10 minutes ago</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-qrcode"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-title">QR code generated for {{new[0]}}</div>
+                                <div class="activity-time">2 hours ago</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- OJT Management Section -->
+            <div id="ojt" class="section">
+                <div class="table-header">
+                    <h1>OJT Management</h1>
+                    
+                </div>
+
+                <div class="ojt-table-container">
+                    <table class="ojt-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Contact</th>
+                                <th>School</th>
+                                <th>Grade Level</th>
+                                <th>Course</th>
+                                <th>OJT Hours</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if ojts %}
+                                {% for ojt in ojts %}
+                                <tr>
+                                    <td>{{ ojt.id }}</td>
+                                    <td>{{ ojt.name }}</td>
+                                    <td>{{ ojt.contact }}</td>
+                                    <td>{{ ojt.school }}</td>
+                                    <td>{{ ojt.grade_lvl }}</td>
+                                    <td>{{ ojt.course }}</td>
+                                    <td>{{ ojt.ojt_hours }}</td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <!-- Edit -->
+                                            <form action="/edit_ojt" method="post" style="display:inline;">
+                                                <input type="hidden" name="ojt_id" value="{{ ojt.id }}">
+                                                <button class="action-btn edit-btn" type="submit">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </button>
+                                            </form>
+                                        
+                                            <!-- Delete -->
+                                            <form action="/delete_ojt" method="post" style="display:inline;">
+                                                <input type="hidden" name="ojt_id" value="{{ ojt.id }}">
+                                                <button class="action-btn delete-btn" type="submit">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        
+                                            <!-- View Info -->
+                                            <form action="{{ url_for('info') }}" method="get" style="display:inline;">
+                                                <input type="hidden" name="ojt_id" value="{{ ojt.id }}">
+                                                <button class="action-btn qr-btn" type="submit">
+                                                    <i class="fas fa-id-card"></i> View
+                                                </button>
+                                            </form>
+                                        
+                                            <!-- Attendance -->
+                                            <form action="/ojt_attendance" method="get" style="display:inline;">
+                                                <input type="hidden" name="ojt_id" value="{{ ojt.id }}">
+                                                <button class="action-btn attendance-btn" type="submit">
+                                                    <i class="fas fa-calendar-check"></i> Attendance
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="8" style="text-align: center; padding: 30px;">No OJT records found</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-footer">
+                    <div>Showing <span id="startItem">1</span> to <span id="endItem">10</span> of <span id="totalItems">{{ ojts|length if ojts else 0 }}</span> entries</div>
+                    <div class="pagination">
+                        <div class="pagination-btn" onclick="changePage('prev')"><i class="fas fa-angle-left"></i></div>
+                        <!-- Page numbers will be inserted here by JavaScript -->
+                        <div class="pagination-btn" onclick="changePage('next')"><i class="fas fa-angle-right"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Register OJT Section -->
+            <div id="register-ojt" class="section">
+                <div class="reg-form-container">
+                    <h1>Register OJT Student</h1>
+                    
+                    <form action="{{ url_for('reg_ojt_commit') }}" method="post">
+                        <div class="form-container">
+                            <div class="form-group">
+                                <label for="fname">Full Name:</label>
+                                <input type="text" name="fname" id="fname" placeholder="Enter Full Name" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contact">Contact:</label>
+                                <input type="tel" name="contact" id="contact" placeholder="Enter Contact Number" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="school">School:</label>
+                                <input type="text" name="school" id="school" placeholder="Enter School Name" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="glvl">Grade Level:</label>
+                                <input type="text" name="glvl" id="glvl" placeholder="Enter Grade Level" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="course">Course:</label>
+                                <input type="text" name="course" id="course" placeholder="Enter Course" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="hours">OJT Hours:</label>
+                                <input type="number" name="hours" id="hours" placeholder="Enter Required Hours" required>
+                            </div>
+
+                            <div class="section-title">Address Information</div>
+
+                            <div class="form-group">
+                                <label for="region">Region:</label>
+                                <select name="region" id="region">
+                                    <option value="">Select Region</option>
+                                    {% for region in region %}
+                                        <option value="{{ region[0] }}">{{ region[0] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="city">City:</label>
+                                <select name="city" id="city">
+                                    <option value="">Select City</option>
+                                    {% for city in city %}
+                                        <option value="{{ city[0] }}">{{ city[0] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="brgy">Barangay:</label>
+                                <select name="brgy" id="brgy">
+                                    <option value="">Select Barangay</option>
+                                    {% for brgy in brgy %}
+                                        <option value="{{ brgy[0] }}">{{ brgy[0] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="street">Street:</label>
+                                <input type="text" name="street" id="street" placeholder="Enter Street Name" required>
+                            </div>
+
+                            <button type="submit" class="submit-btn">
+                                <i class="fas fa-user-plus"></i> Register OJT Student
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        // Show the selected section and update the header title
         function showSection(sectionId) {
+            // Hide all sections
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.remove('active');
             });
+            
+            // Show the selected section
             document.getElementById(sectionId).classList.add('active');
+            
+            // Update active nav link
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`.nav-links a[onclick="showSection('${sectionId}')"]`).classList.add('active');
+            
+            // Update header title
+            const titleElement = document.getElementById(sectionId).querySelector('h1');
+            if (titleElement) {
+                document.getElementById('currentSectionTitle').textContent = titleElement.textContent;
+            }
+            
+            // If showing OJT section, update the pagination
+            if (sectionId === 'ojt') {
+                updateOjtList();
+            }
+        }
+
+        // Pagination variables
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        // Function to update the displayed OJT list based on current page
+        function updateOjtList() {
+            const rows = document.querySelectorAll('.ojt-table tbody tr');
+            const totalItems = rows.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            
+            // Hide all rows
+            rows.forEach(row => row.style.display = 'none');
+            
+            // Show rows for current page
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+            
+            for (let i = startIndex; i < endIndex; i++) {
+                if (rows[i]) {
+                    rows[i].style.display = '';
+                }
+            }
+            
+            // Update pagination info
+            document.getElementById('startItem').textContent = startIndex + 1;
+            document.getElementById('endItem').textContent = endIndex;
+            document.getElementById('totalItems').textContent = totalItems;
+            
+            // Update pagination buttons
+            const paginationContainer = document.querySelector('.pagination');
+            // Clear existing page numbers (keep prev/next buttons)
+            while (paginationContainer.children.length > 2) {
+                paginationContainer.removeChild(paginationContainer.lastChild);
+            }
+            
+            // Add page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('div');
+                pageBtn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+                pageBtn.textContent = i;
+                pageBtn.onclick = () => {
+                    currentPage = i;
+                    updateOjtList();
+                };
+                // Insert before the next button
+                paginationContainer.insertBefore(pageBtn, paginationContainer.lastChild);
+            }
+            
+            // Disable prev/next buttons when appropriate
+            const prevBtn = paginationContainer.firstChild;
+            const nextBtn = paginationContainer.lastChild;
+            
+            prevBtn.classList.toggle('disabled', currentPage === 1);
+            nextBtn.classList.toggle('disabled', currentPage === totalPages);
+        }
+
+        // Function to handle page changes
+        function changePage(direction) {
+            const rows = document.querySelectorAll('.ojt-table tbody tr');
+            const totalItems = rows.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            
+            if (direction === 'prev' && currentPage > 1) {
+                currentPage--;
+            } else if (direction === 'next' && currentPage < totalPages) {
+                currentPage++;
+            }
+            
+            updateOjtList();
+        }
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set the initial active section
+            showSection('dashboard');
+            
+            // Add click event to notification bell
+            document.querySelector('.notification-bell').addEventListener('click', function() {
+                alert('You have 3 new notifications');
+            });
+            
+            // Add click event to user menu
+            document.querySelector('.user-menu').addEventListener('click', function() {
+                alert('User menu options would appear here');
+            });
+        });
+
+        function editOjt(id) {
+            // Implement edit functionality
+            alert('Edit OJT with ID: ' + id);
+            // You can redirect to an edit page or show a modal
+        }
+
+        function deleteOjt(id) {
+            if (confirm('Are you sure you want to delete this OJT record?')) {
+                // Implement delete functionality
+                fetch('/delete_ojt/' + id, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('OJT deleted successfully');
+                        location.reload();
+                    } else {
+                        alert('Error deleting OJT');
+                    }
+                });
+            }
+        }
+
+        function viewQR(path) {
+            // Implement QR code viewing functionality
+            window.open('/qr_codes/' + path, '_blank');
         }
     </script>
 </body>

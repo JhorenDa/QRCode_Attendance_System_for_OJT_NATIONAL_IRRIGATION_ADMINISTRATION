@@ -52,10 +52,39 @@
         .ojt-box p strong {
             color: #007bff;
         }
+        
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .back-button:hover {
+            background-color: #2980b9;
+        }
+        
+        .back-button::before {
+            content: "←";
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="ojt-box">
+        <a href="{{url_for('admin')}}">
+            <button class="back-button" >Back</button>
+        </a>
+        
         <img src="{{ url_for('static', filename='qrcodes/'+ path) }}" alt="QR Code">
         <p><strong>Full Name:</strong> {{ fname }}</p>
         <p><strong>School:</strong> {{ school }}</p>

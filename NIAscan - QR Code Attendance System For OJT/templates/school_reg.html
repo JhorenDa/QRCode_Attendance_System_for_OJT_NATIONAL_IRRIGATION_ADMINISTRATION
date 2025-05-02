@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add School</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #468087;
+            --accent-color: #00e63d;
+            --dark-color: #2c3e50;
+            --light-color: #f0f8ff;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            padding: 20px;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-container h1 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 24px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .form-container h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 3px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all var(--transition-speed);
+            background-color: #f9f9f9;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(70, 128, 135, 0.2);
+            background-color: white;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all var(--transition-speed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            opacity: 0.9;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1><i class="fas fa-school"></i> Add New School</h1>
+        
+        <form action="/add_school" method="post">
+            <div class="form-group">
+                <label for="school_name">School Name:</label>
+                <input type="text" id="school_name" name="name" placeholder="Enter full school name" required maxlength="125">
+            </div>
+
+            <div class="form-group">
+                <label for="school_shorten">Short Name/Abbreviation:</label>
+                <input type="text" id="school_shorten" name="shorten" placeholder="Enter short name or abbreviation" required maxlength="125">
+            </div>
+
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-plus"></i> Add School
+            </button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form validation can be added here if needed
+            const form = document.querySelector('form');
+            
+            form.addEventListener('submit', function(e) {
+                // You can add additional client-side validation here
+                const name = document.getElementById('school_name').value.trim();
+                const shorten = document.getElementById('school_shorten').value.trim();
+                
+                if (!name || !shorten) {
+                    e.preventDefault();
+                    alert('Please fill in all fields');
+                    return false;
+                }
+                
+                // Additional validation logic can go here
+                return true;
+            });
+        });
+    </script>
+</body>
+</html>
